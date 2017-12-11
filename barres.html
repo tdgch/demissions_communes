@@ -91,11 +91,10 @@
   </style>
 </head>
 <body>
-  <h2>Les démissions des conseillers municipaux par parti</h2>
+  <h2>Les démissions par parti</h2>
 
 <div id="chart"></div>
-<p class="impressum">Seules les listes communales qui se revendiquent clairement d'un parti cantonal ont été prises en compte dans les calculs.</p>
-<p class="impressum">Les démissions pour entamer un nouveau mandat politique ne sont pas prises en compte.</p>
+<p class="impressum">Seules les listes communales qui se revendiquent clairement d'un parti cantonal ont été prises en compte dans les calculs. Les démissions pour entamer un nouveau mandat politique ne sont pas prises en compte.</p>
 <p class="impressum">Source: Chancellerie d’Etat, visualisation: Paul Ronga, code <a target="_blank" href="https://github.com/tdgch/demissions_communes">disponible sur GitHub</a></p>
 
 <script>
@@ -118,7 +117,7 @@ var chart = c3.generate({
 		format: {
 			value: function (value, ratio, id) {
 				// Formatting: see https://github.com/mbostock/d3/wiki/Formatting.
-				// Doesn't work perfectly with integers, so we use Number.isInteger.
+        // Here just a quick percentage sign because I already formatted it in the data file
 				return value + '%';
 			}
 		}
@@ -137,6 +136,14 @@ var chart = c3.generate({
     }
   }
 );
+
+if ($( window ).width() < 450){
+  // ici eventuellement: enableParentNotification + resizing de l’iframe sur mobile
+  DimensionWatcher.enableParentNotification(undefined, function() {
+      return 550;
+  });
+}
+
 </script>
 </body>
 </html>

@@ -46,14 +46,14 @@
   }
   #panel{
     width: 300px;
-    height: 150px;
+    height: 160px;
   }
   #tooltip h3, #tooltip p{
     margin: 6px 0 12px 0;
   }
   #legend{
     max-width: 150px;
-    height: 150px;
+    height: 160px;
   }
   #tooltip{
     padding: 5px;
@@ -83,7 +83,7 @@
   </style>
 </head>
 <body>
-  <h2>Les démissions des conseillers municipaux dans le canton</h2>
+  <h2>Les démissions par commune</h2>
   <div id="viz">
     <div id="toolbar">
       <form>
@@ -131,7 +131,7 @@
       scales['2015']['domain']
     )
     .range(
-      ['#a6d96a', '#ffffbf', '#fdae61','#d7191c']
+      ['#279136', '#a6d96a', '#ffffbf', '#fdae61','#d7191c']
     );
 
   scales['2017']['scale'] = d3.scaleThreshold()
@@ -139,7 +139,7 @@
       scales['2017']['domain']
     )
     .range(
-      ['#a6d96a', '#ffffbf', '#fdae61','#d7191c']
+      ['#279136', '#a6d96a', '#ffffbf', '#fdae61','#d7191c']
     );
 
   var geo = {
@@ -155,7 +155,7 @@
 
   var width = 450,
     height = 380;
-  var scaleFactor = 1, translateX = 480, translateY = 268, legendPadding = 6;
+  var scaleFactor = 1, translateX = 480, translateY = 268, legendPadding = 1;
 
   var windowWidth = $( window ).width();
   if (windowWidth < 450){
