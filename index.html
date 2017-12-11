@@ -83,7 +83,7 @@
   </style>
 </head>
 <body>
-  <h2>Les démissions des conseillers municipaux</h2>
+  <h2>Les démissions des conseillers municipaux dans le canton</h2>
   <div id="viz">
     <div id="toolbar">
       <form>
@@ -91,7 +91,7 @@
           <input type="radio" name="optradio" checked onclick="updateTerm('2015');">2011-2015
         </label>
         <label class="radio-inline">
-          <input type="radio" name="optradio" onclick="updateTerm('2017');">2015-2017 (en cours)
+          <input type="radio" name="optradio" onclick="updateTerm('2017');">2015-2020 (jusqu’en juin 2017)
         </label>
       </form>
     </div>
@@ -103,7 +103,7 @@
       <b>Survoler ou toucher du doigt une commune pour voir le détail</b>
     </div>
     <p class="impressum">Les démissions pour entamer un nouveau mandat politique ne sont pas prises en compte.</p>
-    <p class="impressum">Source: xxx, visualisation: Paul Ronga, code disponible sur GitHub</p>
+    <p class="impressum">Source: Chancellerie d’Etat, visualisation: Paul Ronga, code <a target="_blank" href="https://github.com/tdgch/demissions_communes">disponible sur GitHub</a></p>
   </div>
 
   <script>
@@ -114,14 +114,14 @@
   var scales = {
     '2015': {
       'domain': [0.2, 0.4, .6, .8],
-      'labels': ["Moins de 20%", "De 20 à 40%", "De 40 à 60%", "Plus de 60%"],
+      'labels': ["Moins de 20%", "De 20 à 39%", "De 40 à 59%", "Plus de 60%"],
       'title': 'Législature 2011-2015',
       'scale': null
     },
     '2017': {
       'domain': [0.1, 0.2, .3, .4],
-      'labels': ["Moins de 10%", "De 10 à 20%", "De 20 à 30%", "Plus de 30%"],
-      'title': 'Demi-législature 2015-2017',
+      'labels': ["Moins de 10%", "De 10 à 19%", "De 20 à 39%", "Plus de 40%"],
+      'title': 'Législature 2015-2020 (en cours)',
       'scale': null
     }
   }
