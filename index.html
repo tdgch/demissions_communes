@@ -1,0 +1,308 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta property="og:image" content="//longforms.tdg.ch/distance_transports_publics/img/preview.png" />
+  <script src="js/d3.min.js"></script>
+  <script src="js/topojson.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.24.0/d3-legend.js"></script>
+  <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+  <script src="//files.newsnetz.ch/scripts/dimension_watcher.js"></script>
+  <link href="//fonts.googleapis.com/css?family=Cardo" rel="stylesheet">
+  <style>
+  body{
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    overflow-x: hidden;
+    font-family: "Cardo","Palatino Linotype","Book Antiqua","Palatino",serif;
+  }
+  div#viz, div#panel{
+    float: left;
+  }
+  div#viz{
+    position: relative;
+  }
+  #toolbar{
+    position: absolute;
+    top: 6px;
+    left: 4px;
+  }
+  #toolbar .button{
+    text-decoration: none;
+    padding: 3px;
+    margin: 3px;
+    color: #FFFFFF;
+    background-color: #4CAF50;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  #toolbar .button:hover{
+    box-shadow: 0 2px 3px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+  }
+  #toolbar .button.geneve{
+    background-color: #ff0000;
+  }
+  #panel{
+    width: 300px;
+    height: 150px;
+  }
+  #tooltip h3, #tooltip p{
+    margin: 6px 0 12px 0;
+  }
+  #legend{
+    max-width: 150px;
+    height: 150px;
+  }
+  #tooltip{
+    padding: 5px;
+  }
+  .commune{
+    fill: white;
+    stroke: grey;
+  }
+  .swatch{
+    stroke: grey;
+  }
+  .impressum{
+    font-size: .9em;
+    margin-left: -2em;
+  }
+  @media screen and (max-width: 640px) {
+    body{
+      margin: 4px;
+    }
+    #legend{
+      float: right;
+    }
+    .impressum{
+      margin-left: 0;
+    }
+  }
+  </style>
+</head>
+<body>
+  <h2>Les démissions des conseillers municipaux</h2>
+  <div id="viz">
+    <div id="toolbar">
+      <form>
+        <label class="radio-inline">
+          <input type="radio" name="optradio" checked onclick="updateTerm('2015');">2011-2015
+        </label>
+        <label class="radio-inline">
+          <input type="radio" name="optradio" onclick="updateTerm('2017');">2015-2017 (en cours)
+        </label>
+      </form>
+    </div>
+  </div>
+  <div id="panel">
+    <div id="legend"></div>
+    <div id="tooltip">
+      <h3>Détail par commune</h3>
+      <b>Survoler ou toucher du doigt une commune pour voir le détail</b>
+    </div>
+    <p class="impressum">Les démissions pour entamer un nouveau mandat politique ne sont pas prises en compte.</p>
+    <p class="impressum">Source: xxx, visualisation: Paul Ronga, code disponible sur GitHub</p>
+  </div>
+
+  <script>
+  var legend_svg, legendOrdinal;
+  var geoChoice = 'ge';
+  var termSuffix = '2015';
+
+  var scales = {
+    '2015': {
+      'domain': [0.2, 0.4, .6, .8],
+      'labels': ["Moins de 20%", "De 20 à 40%", "De 40 à 60%", "Plus de 60%"],
+      'title': 'Législature 2011-2015',
+      'scale': null
+    },
+    '2017': {
+      'domain': [0.1, 0.2, .3, .4],
+      'labels': ["Moins de 10%", "De 10 à 20%", "De 20 à 30%", "Plus de 30%"],
+      'title': 'Demi-législature 2015-2017',
+      'scale': null
+    }
+  }
+
+  scales['2015']['scale'] = d3.scaleThreshold()
+    .domain(
+      scales['2015']['domain']
+    )
+    .range(
+      ['#a6d96a', '#ffffbf', '#fdae61','#d7191c']
+    );
+
+  scales['2017']['scale'] = d3.scaleThreshold()
+    .domain(
+      scales['2017']['domain']
+    )
+    .range(
+      ['#a6d96a', '#ffffbf', '#fdae61','#d7191c']
+    );
+
+  var geo = {
+    'ge':
+    {
+      'geofile': 'data/communes_geneve.json',
+      'scale': 59000,
+      'center': [6.4, 46.204549],
+      'domain': [0.2, 0.4, .6, .8],
+      'geodata': null
+    }
+  }
+
+  var width = 450,
+    height = 380;
+  var scaleFactor = 1, translateX = 480, translateY = 268, legendPadding = 6;
+
+  var windowWidth = $( window ).width();
+  if (windowWidth < 450){
+    // resize
+    width = windowWidth - 20;
+    ratio = width / 450;
+    console.log("Width is " + windowWidth + " -> resize to ratio " + ratio);
+    height *= ratio;
+    scaleFactor *= ratio;
+    translateX *= ratio;
+    translateY *= ratio;
+    legendPadding = 0;
+
+    // ici eventuellement: enableParentNotification + resizing de l’iframe sur mobile
+    DimensionWatcher.enableParentNotification(undefined, function() {
+        return height + 400;
+    });
+  }
+
+
+  var svg = d3.select("#viz")
+  .append("svg")
+  .attr("width", width)
+  .attr("height", height)
+  .append("g");
+
+  var projection = d3.geoMercator()
+        .scale(scaleFactor * geo[geoChoice]['scale'])
+        .center(geo[geoChoice]['center'])
+         .translate([translateX, translateY]);
+
+  var path = d3.geoPath()
+      .projection(projection);
+
+  var dataById = d3.map();
+
+  function showTooltip(d, i){
+    var row = dataById.get(d.properties.NO_COM_FED);
+
+    // nested func
+    function getPercentage(theValue){
+      return parseFloat(theValue*100).toFixed(1) + '%'
+    }
+
+    if(row){
+      // nombre démissions et variantes pour 1 et 0
+      var phrase_demission = row['Total démissions_' + termSuffix] + ' ont démissionné, ce qui représente ' + getPercentage(row['Taux_' + termSuffix]) + ' d’entre eux.';
+      if( row['Total démissions_' + termSuffix] == 1){
+        phrase_demission = 'un seul a démissionné, ce qui représente ' + getPercentage(row['Taux_' + termSuffix]) + ' d’entre eux.';
+      }else if(row['Total démissions_' + termSuffix] == 0){
+        phrase_demission = 'aucun n’a démissionné.';
+      }
+
+      d3.select('#tooltip').html(`
+        <h3>` + row['Commune'] + `</h3>
+        <p><b>` + getPercentage(row['Taux_' + termSuffix]) + ` de démissions</b></p>
+        <p>Sur les ` + row['Nombre de conseillers municipaux_' + termSuffix] + ` conseillers municipaux que compte ` + row['Commune'] + `,
+        ` + phrase_demission + `</p>
+        `);
+    }
+  }
+
+  d3.queue()
+    .defer(d3.json, geo[geoChoice]['geofile'])
+    .defer(d3.csv, "data/demissions_par_commune.csv", function(row){
+      dataById.set(row.No, row);
+    })
+    .await(ready);
+
+  function ready(error, geodata) {
+    if (error)
+    {
+      console.log('Could not load data');
+      throw error;
+    }
+
+    svg.append("g")
+      .attr("class", "commune")
+      .selectAll("path")
+		  .data(topojson.feature(geodata, geodata.objects.lacs_communes).features)
+      .enter().append("path")
+      .attr("class", "boundary")
+      .attr("fill", function(d){
+        if(d.properties.NO_COM_FED == 0){
+          return 'lightblue';
+        }
+        var result = dataById.get(d.properties.NO_COM_FED);
+        if(!result){
+          console.log('No result for ' + d.properties.NOM_MIN)
+          return 'white';
+        }else{
+          return scales['2015']['scale']( dataById.get(d.properties.NO_COM_FED)['Taux_' + termSuffix] );
+        }
+
+        return 'white';
+      })
+      .attr("d", path)
+      .on('mouseover', showTooltip);
+  }
+
+
+  function loadLegend(){
+    legend_svg = d3.select("#legend").append('svg');
+
+    legend_svg.append("g")
+    .attr("class", "legendOrdinal")
+    .attr("transform", "translate(20,20)");
+
+    legendOrdinal = d3.legendColor()
+    .shapePadding(legendPadding)
+    .labels(scales[termSuffix]['labels'])
+    .scale(scales['2015']['scale'])
+    .title("Législature 2011-2015");
+
+    legend_svg.select(".legendOrdinal")
+    .call(legendOrdinal);
+  }
+  loadLegend();
+
+  function updateTerm(choice){
+    termSuffix = choice;
+
+    svg.selectAll(".boundary")
+    .transition().duration(500)
+    .attr("fill", function(d){
+      if(d.properties.NO_COM_FED == 0){
+        return 'lightblue';
+      }
+      var result = dataById.get(d.properties.NO_COM_FED);
+      if(!result){
+        console.log('No result for ' + d.properties.NOM_MIN)
+        return 'white';
+      }else{
+        return scales[termSuffix]['scale'](dataById.get(d.properties.NO_COM_FED)['Taux_' + termSuffix])
+      }
+
+      return 'white';
+    });
+
+    legendOrdinal.labels(scales[termSuffix]['labels']);
+    legendOrdinal.title(scales[termSuffix]['title']);
+
+    legend_svg.select(".legendOrdinal")
+        .call(legendOrdinal);
+  }
+
+
+  </script>
+</body>
+</html>
