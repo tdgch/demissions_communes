@@ -77,6 +77,12 @@
   .impressum{
     font-size: .9em;
   }
+  h2{
+    margin: 12px 0;
+  }
+  p{
+    margin: 6px 0;
+  }
   @media screen and (max-width: 640px) {
     body{
       margin: 4px;
@@ -94,7 +100,8 @@
   <h2>Les démissions par parti</h2>
 
 <div id="chart"></div>
-<p class="impressum">Seules les listes communales qui se revendiquent clairement d'un parti cantonal ont été prises en compte dans les calculs. Les démissions pour entamer un nouveau mandat politique ne sont pas prises en compte.</p>
+<p class="impressum">Seules les listes communales qui se revendiquent clairement d'un parti cantonal ont été prises en compte dans les calculs.</p>
+<p class="impressum">Les démissions pour entamer un nouveau mandat politique ne sont pas prises en compte.</p>
 <p class="impressum">Source: Chancellerie d’Etat, visualisation: Paul Ronga, code <a target="_blank" href="https://github.com/tdgch/demissions_communes">disponible sur GitHub</a></p>
 
 <script>
@@ -103,7 +110,8 @@ var colors = Array ( "#9abd42", "#EECC00", "green", "#ad1524", "#ef7f01", "#009d
 var chart = c3.generate({
   bindto: '#chart',
   padding: {
-      left: 60
+      left: 60,
+      right: 25
   },
   data: {
     x: 'Parti',
