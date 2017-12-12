@@ -78,10 +78,10 @@
     font-size: .9em;
   }
   h2{
-    margin: 12px 0;
+    margin: 8px 0;
   }
   p{
-    margin: 6px 0;
+    margin: 4px 0;
   }
   @media screen and (max-width: 640px) {
     body{
@@ -97,12 +97,12 @@
   </style>
 </head>
 <body>
-  <h2>Les démissions par parti</h2>
+  <h2>Les démissions par parti (législature 2011-2015)</h2>
 
 <div id="chart"></div>
 <p class="impressum">Seules les listes communales qui se revendiquent clairement d'un parti cantonal ont été prises en compte dans les calculs.</p>
 <p class="impressum">Les démissions pour entamer un nouveau mandat politique ne sont pas prises en compte.</p>
-<p class="impressum"><i>Source: Chancellerie d’Etat, visualisation: Paul Ronga, code <a target="_blank" href="https://github.com/tdgch/demissions_communes">disponible sur GitHub</a></i></p>
+<p class="impressum"><i>Source: Chancellerie d’Etat, moteurs: <a target="_blank" href="https://github.com/c3js/c3">C3.js</a> et <a target="_blank" href="https://d3js.org/">D3.js</a>, code <a target="_blank" href="https://github.com/tdgch/demissions_communes">disponible sur GitHub</a></i></p>
 
 <script>
 var colors = Array ( "#9abd42", "#EECC00", "green", "#ad1524", "#ef7f01", "#009de2", "#f00", "#9BBD58" );
@@ -119,7 +119,11 @@ var chart = c3.generate({
     type: 'bar',
     color: function (color, d) {
                 return colors[d.index];
-            },
+    },
+    labels: {
+      format: function (value) { return Math.round(value) + '%'; }
+    },
+
   },
   tooltip: {
 		format: {

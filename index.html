@@ -15,7 +15,7 @@
     height: 100%;
     width: 100%;
     margin: 0;
-    margin-left: 5px;
+    margin-left: 4px;
     overflow-x: hidden;
     font-family: "Cardo","Palatino Linotype","Book Antiqua","Palatino",serif;
   }
@@ -27,7 +27,7 @@
   }
   #toolbar{
     position: absolute;
-    top: 6px;
+    top: 2px;
     left: 4px;
   }
   #toolbar .button{
@@ -72,10 +72,13 @@
   }
   @media screen and (max-width: 640px) {
     body{
-      margin: 4px;
+      margin: 2px;
     }
     #legend{
       float: right;
+    }
+    #toolbar{
+	    top: -3px;
     }
     .impressum{
       margin-left: 0;
@@ -104,7 +107,7 @@
       <b>Survoler ou toucher du doigt une commune pour voir le détail</b>
     </div>
     <p class="impressum">Les démissions pour entamer un nouveau mandat politique ne sont pas prises en compte.</p>
-    <p class="impressum"><i>Source: Chancellerie d’Etat, visualisation: Paul Ronga, code <a target="_blank" href="https://github.com/tdgch/demissions_communes">disponible sur GitHub</a></i></p>
+    <p class="impressum"><i>Source: Chancellerie d’Etat, visualisation: Paul Ronga, moteur: <a target="_blank" href="https://d3js.org/">D3.js</a>, code <a target="_blank" href="https://github.com/tdgch/demissions_communes">disponible sur GitHub</a></i></p>
   </div>
 
   <script>
@@ -121,7 +124,7 @@
     },
     '2017': {
       'domain': [0.001, 0.1, 0.2, .3, .4],
-      'labels': ["Aucune démission", "Moins de 10%", "De 10 à 19%", "De 20 à 39%", "Plus de 40%"],
+      'labels': ["Aucune démission", "Moins de 10%", "De 10 à 19%", "De 20 à 29%", "Plus de 30%"],
       'title': 'Législature 2015-2020 (en cours)',
       'scale': null
     }
@@ -148,14 +151,14 @@
     {
       'geofile': 'data/communes_geneve.json',
       'scale': 59000,
-      'center': [6.4, 46.204549],
+      'center': [6.4, 46.201549],
       'domain': [0.2, 0.4, .6, .8],
       'geodata': null
     }
   }
 
   var width = 450,
-    height = 380;
+    height = 400;
   var scaleFactor = 1, translateX = 480, translateY = 268, legendPadding = 0;
 
   var windowWidth = $( window ).width();
@@ -172,7 +175,7 @@
 
     // ici eventuellement: enableParentNotification + resizing de l’iframe sur mobile
     DimensionWatcher.enableParentNotification(undefined, function() {
-        return height + 400;
+        return height + 440;
     });
   }
 
@@ -209,11 +212,14 @@
       }else if(row['Total démissions_' + termSuffix] == 0){
         phrase_demission = 'aucun n’a démissionné.';
       }
-
+      var determinant = '';
+	  if(row['Commune'] == 'Ville de Genève'){
+	  	determinant = 'la ';
+	  }
       d3.select('#tooltip').html(`
         <h3>` + row['Commune'] + `</h3>
         <p><b>` + getPercentage(row['Taux_' + termSuffix]) + ` de démissions</b></p>
-        <p>Sur les ` + row['Nombre de conseillers municipaux_' + termSuffix] + ` conseillers municipaux que compte ` + row['Commune'] + `,
+        <p>Sur les ` + row['Nombre de conseillers municipaux_' + termSuffix] + ` conseillers municipaux que compte ` + determinant + row['Commune'] + `,
         ` + phrase_demission + `</p>
         `);
     }
