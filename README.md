@@ -8,7 +8,7 @@ La carte est en [d3.js](https://d3js.org/) version 4, le graphique en [c3.js](ht
 
 Les données de base ont été fournies sous forme de PDF par la Chancellerie d’Etat du Canton de Genève.
 
-Aperçu:
+**Aperçu:**
 
 ![Carte des communes](/img/preview.png)
 
