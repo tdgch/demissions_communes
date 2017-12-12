@@ -7,3 +7,9 @@ Deux infographies utilisées pour l’article [«Hémorragie dans les Conseils m
 La carte est en [d3.js](https://d3js.org/) version 4, le graphique en [c3.js](https://github.com/c3js/c3) et d3.js version 3.
 
 Les données de base ont été fournies sous forme de PDF par la Chancellerie d’Etat du Canton de Genève.
+
+Aperçu:
+
+![Carte des communes](/img/preview.png)
+
+![Graphique en barres: les partis](/img/preview-bar.png)
